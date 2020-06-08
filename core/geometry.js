@@ -188,7 +188,6 @@ class Geometry {
 	 */
 	angle(c) {
 		// TODO
-
 		return 0.0; // placeholder
 	}
 
@@ -200,8 +199,11 @@ class Geometry {
 	 */
 	cotan(h) {
 		// TODO
-
-		return 0.0; // placeholder
+		var a = this.vector(h);
+		//b = this.vector(c.halfedge.twin.next); //looks same as below
+		var b = this.vector(h.prev).negated();
+		return a.dot(b) / a.cross(b);
+		//return 0.0; // placeholder
 	}
 
 	/**
@@ -224,9 +226,13 @@ class Geometry {
 	 * @returns {number}
 	 */
 	barycentricDualArea(v) {
-		// TODO
-
-		return 0.0; // placeholder
+		// TODO;
+		var dualArea = 0;
+		for (let f of v.adjacentFaces()) 
+		{
+			dualArea += this.area(f);
+		}
+		return dualArea / 3; // placeholder
 	}
 
 	/**

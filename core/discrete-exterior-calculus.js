@@ -15,8 +15,29 @@ class DEC {
 	 */
 	static buildHodgeStar0Form(geometry, vertexIndex) {
 		// TODO
-
-		return SparseMatrix.identity(1, 1); // placeholder
+		// var dualArea = 0;
+		// var T = new Triplet;
+		// for (var key in vertexIndex)
+		// {
+		// 	for (var f of key.adjacentFaces())
+		// 	{
+		// 		for (var h of f.adjacentHalfedges())
+		// 		{
+		// 			var v = geometry.vector(h);
+		// 			dualArea+= v.dot(v) * geometry.cotan(h);
+		// 		}
+		// 	}
+		// 	T.push_back(vertexIndex[key], vertexIndex[key], dualArea/8);
+		// }
+		var size = Object.keys(vertexIndex).length;
+		var T = new Triplet(size,size);
+		for (var key in vertexIndex)
+		{	
+			var pos = vertexIndex[key];
+			var vertex = geometry.mesh.vertices[pos];
+			T.addEntry(geometry.barycentricDualArea(vertex), pos, pos);
+		}
+		return SparseMatrix.fromTriplet(T); 
 	}
 
 	/**
@@ -28,8 +49,20 @@ class DEC {
 	 */
 	static buildHodgeStar1Form(geometry, edgeIndex) {
 		// TODO
+		var size = Object.keys(edgeIndex).length;
+		var T = new Triplet(size,size);
 
-		return SparseMatrix.identity(1, 1); // placeholder
+		for (var key in edgeIndex)
+		{
+			var pos = edgeIndex[key];
+			var edge = geometry.mesh.edges[pos];
+
+			var ratio = geometry.cotan(edge.halfedge) + geometry.cotan(edge.halfedge.twin);
+			ratio *= 0.5;
+			T.addEntry(ratio, pos, pos);
+		}
+		return SparseMatrix.fromTriplet(T);
+		//return SparseMatrix.identity(1, 1); // placeholder
 	}
 
 	/**
@@ -42,8 +75,18 @@ class DEC {
 	 */
 	static buildHodgeStar2Form(geometry, faceIndex) {
 		// TODO
+		var size = Object.keys(faceIndex).length;
+		var T = new Triplet(size,size);
 
-		return SparseMatrix.identity(1, 1); // placeholder
+		for (var key in faceIndex)
+		{
+			var pos = faceIndex[key];
+			var face = geometry.mesh.faces[pos];
+
+			T.addEntry(1 / geometry.area(face), pos, pos );
+		}
+		return SparseMatrix.fromTriplet(T);
+		//return SparseMatrix.identity(1, 1); // placeholder
 	}
 
 	/**
