@@ -202,7 +202,8 @@ class Geometry {
 		var a = this.vector(h);
 		//b = this.vector(c.halfedge.twin.next); //looks same as below
 		var b = this.vector(h.prev).negated();
-		return a.dot(b) / a.cross(b);
+		return a.dot(b) / a.cross(b).norm();
+		
 		//return 0.0; // placeholder
 	}
 

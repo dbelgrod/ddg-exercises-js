@@ -129,25 +129,37 @@ class DEC {
 		var F = Object.keys(faceIndex).length;
 		var T = new Triplet(F,E);
 
-		var edge_val = 1;
+		
 		var seen = new Set();
 		
-		for (var key in faceIndex)
-		{	
-			var f = geometry.mesh.faces[faceIndex[key]];
-			function helper(f, edge_val) {
-				seen.addEntry(f);
-				for (let e of f.adjacentEdges())
-				{
-					T.addEntry(edge_val, f.index, e.index);
-				}
-				for (let fadj of f.adjacentFaces())
-				{
-					if (seen.has(fadj)) continue;
-					helper(fadj, -1 * edge_val);
-				}
-			}
-		}
+		// for (var key in faceIndex)
+		// {	
+		//var face = geometry.mesh.faces[0];
+		var edge_val = -1;
+		
+		// function helper(f, val) 
+		// {
+		// 	if (seen.has(f)) return;
+			
+		// 	for (let e of f.adjacentEdges())
+		// 	{
+		// 		T.addEntry(val, f.index, e.index);
+		// 	}
+		// 	seen.add(f);
+			
+		// 	for (let fadj of f.adjacentFaces())
+		// 	{
+		// 		helper(fadj, -1 * val);
+		// 	}
+		// }
+		// for (let face of geometry.mesh.faces)
+		// 	helper(face, edge_val);
+		// console.log(seen.size);
+		// console.log(F);
+		//}
+
+		var face = geometry.mesh.faces[0];
+		
 		return SparseMatrix.fromTriplet(T);
 	}
 }
