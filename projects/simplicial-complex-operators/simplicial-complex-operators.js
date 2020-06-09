@@ -77,12 +77,12 @@ perators#buildVertexVector
          *  vertex i is in the given subset and 0 otherwise
          */
         buildVertexVector(subset) {
-                let V = this.mesh.vertices.length
+                let V = this.mesh.vertices.length;
                 let A = DenseMatrix.zeros(V, 1);
                 
                 for (let i=0; i<V; i++){
                         if (subset.vertices.has(i)){
-                                A.set(i, 0, 1);
+                                A.set(1, i, 0);
                         }
                 }
                 return A;
@@ -97,12 +97,12 @@ perators#buildVertexVector
          *  edge i is in the given subset and 0 otherwise
          */
         buildEdgeVector(subset) {
-                let E = this.mesh.edges.length
+                let E = this.mesh.edges.length;
                 let A = DenseMatrix.zeros(E, 1);
                 
                 for (let i=0; i<E; i++){
-                        if (subset.vertices.has(i)){
-                                A.set(i, 0, 1);
+                        if (subset.edges.has(i)){
+                                A.set(1, i, 0);
                         }
                 }
                 return A;
@@ -116,12 +116,12 @@ perators#buildVertexVector
          *  face i is in the given subset and 0 otherwise
          */
         buildFaceVector(subset) {
-                let F = this.mesh.faces.length
+                let F = this.mesh.faces.length;
                 let A = DenseMatrix.zeros(F, 1);
                 
                 for (let i=0; i<F; i++){
-                        if (subset.vertices.has(i)){
-                                A.set(i, 1, 1);
+                        if (subset.faces.has(i)){
+                                A.set(1, i, 0);
                         }
                 }
                 return A;
@@ -185,6 +185,25 @@ perators#buildVertexVector
                                 subset_star.addFaces(tmp_faces);
                         //}
                 }
+                for (let e of subset.edges)
+                {
+                        subset_star.addEdge(e);
+                        let fe_row = this.A1.subMatrix(e, e+1, 0, this.A1.nCols()).toDense();
+                        for (let f=0; f<fe_row.nCols(); f++)
+                                        //for (let f of subset.faces)
+                                        {
+                                                if (fe_row.get(0, f) == 1) 
+                                                {
+                                                
+                                                        subset_star.addFace(f); 
+                                                }
+                                        }
+                }
+
+                for (let f of subset.faces)
+                {
+                        subset_star.addFace(f);
+                }
 
                 return subset_star; 
         }
@@ -233,7 +252,7 @@ perators#buildVertexVector
         link(subset) {
                 // TODO
                 let lk = this.closure(this.star(subset));
-                lk.deleteSubset(this.star(subset));
+                lk.deleteSubset(this.star(this.closure(subset)));
                 return lk;
         }
 
@@ -317,16 +336,31 @@ perators#buildVertexVector
                  */
                 //assert (this.isPureComplex(subset));
                 let bd = new MeshSubset();
-
+                
+                if (!subset.faces.size && subset.edges.size) 
+                {
+                        for (let v of subset.vertices)
+                        {
+                                let v_check=0;
+                                let ev = this.A0.subMatrix(0, this.A0.nRows(), v, v+1).toDense();
+                                for (let e=0; e<this.A0.nRows(); e++)
+                                {
+                                        if (ev.get(e,0) == 1 && subset.edges.has(e)) v_check++;
+                                }
+                                console.log(v_check);
+                                if (v_check==1) bd.addVertex(v);
+                        }
+                }
                 for (let e of subset.edges)
                 {
+
                         let ef = this.A1.subMatrix(e,e+1, 0, this.A1.nCols()).toDense();
                         let proper_face_chk = 0;
                         for (let f = 0; f< this.A1.nCols(); f++)
                         {
                                 if (ef.get(0,f)== 1 && subset.faces.has(f))  proper_face_chk++;
                         }
-                        if (proper_face_chk == 1)
+                        if (proper_face_chk == 1 )
                         {
                                 bd.addEdge(e);
                                 let ev = this.A0.subMatrix(e,e+1, 0, this.A0.nCols()).toDense();
@@ -335,6 +369,22 @@ perators#buildVertexVector
                                         if (ev.get(0,v) == 1) bd.addVertex(v);
                                 }
                         }
+                        
+                        // if (proper_face_chk == 0)
+                        // {   
+                        //         let proper_vertex_check = 0;
+                        //         let ev = this.A0.subMatrix(e,e+1, 0, this.A0.nCols()).toDense();
+                        //         for (let v=0; v<this.A0.nCols(); v++)
+                        //         {
+                        //                 if (ev.get(0,v) == 1 && subset.vertices.has(v))
+                        //                 {
+                        //                         proper_vertex_check++;
+                        //                         bd.addVertex(v);
+                        //                 }
+                        //         }
+
+                        //         if (proper_vertex_check <= 2) bd.addEdge(e);
+                        // }
                                  
                 }
                 return bd; // placeholder
