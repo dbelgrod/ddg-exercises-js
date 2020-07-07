@@ -208,12 +208,10 @@ class Geometry {
 	 */
 	cotan(h) {
 		// TODO
-		var a = this.vector(h);
-		//b = this.vector(c.halfedge.twin.next); //looks same as below
-		var b = this.vector(h.prev).negated();
+		var a = this.vector(h.next).negated();
+		var b = this.vector(h.prev);
+
 		return a.dot(b) / a.cross(b).norm();
-		
-		//return 0.0; // placeholder
 	}
 
 	/**
@@ -337,8 +335,18 @@ class Geometry {
 	 */
 	vertexNormalGaussCurvature(v) {
 		// TODO
-
-		return new Vector(); // placeholder
+		var n = new Vector();
+		for (let e of v.adjacentEdges())
+		{
+			var gc = this.vector(e.halfedge);
+			if (e.halfedge.vertex != v) gc = gc.negated();
+			gc.scaleBy(this.dihedralAngle(e.halfedge) / this.vector(e.halfedge).norm());
+			n.incrementBy(gc);
+		}
+		//return new Vector(); // placeholder
+		n.scaleBy(0.5);
+		n.normalize();
+		return n;
 	}
 
 	/**
@@ -349,8 +357,20 @@ class Geometry {
 	 */
 	vertexNormalMeanCurvature(v) {
 		// TODO
-
-		return new Vector(); // placeholder
+		var n = new Vector();
+		for (let e of v.adjacentEdges())
+		{
+			var nc = this.vector(e.halfedge);
+			if (e.halfedge.vertex != v) nc = nc.negated();
+			console.log(this.cotan(e.halfedge));
+			nc.scaleBy(this.cotan(e.halfedge) * this.cotan(e.halfedge.twin))
+			n.incrementBy(nc);
+		}
+		//return new Vector(); // placeholder
+		n.scaleBy(0.5);
+		n.normalize();
+		return n;
+		//return new Vector(); // placeholder
 	}
 
 	/**
@@ -431,8 +451,13 @@ class Geometry {
 	 */
 	scalarMeanCurvature(v) {
 		// TODO
-
-		return 0.0; // placeholder
+		var H = 0.0;
+		for (let e of v.adjacentEdges())
+		{
+			H += this.dihedralAngle(e.halfedge) * this.vector(e.halfedge).norm();
+		}
+		return 0.5* H;
+		//return 0.0; // placeholder
 	}
 
 	/**
