@@ -2,7 +2,7 @@
 
 class Geometry {
 	/**
-	 * This class represents the geometry of a {@link module:Core.Mesh Mesh}. This includes information such
+	 * This class represents the geometry of a {@link module:Core.Mesh Memjsh}. This includes information such
 	 * as the position of vertices as well as methods to compute edge lengths, corner
 	 * angles, face area, normals, discrete curvatures etc.
 	 * @constructor module:Core.Geometry
@@ -187,8 +187,17 @@ class Geometry {
 	 * @returns {number} The angle clamped between 0 and π.
 	 */
 	angle(c) {
-		// TODO
-		return 0.0; // placeholder
+		//halfedge is opposite to corner
+		var a = this.vector(c.halfedge.next).negated();
+		var b = this.vector(c.halfedge.prev);
+
+		var x = a.dot(b);
+		x /= a.norm();
+		x /= b.norm();
+
+		return Math.acos(x); //returns 0 to pi
+		
+		//return 0.0; // placeholder
 	}
 
 	/**
@@ -216,8 +225,15 @@ class Geometry {
 	 */
 	dihedralAngle(h) {
 		// TODO
+		var e_n = this.vector(h).unit();
+		var n1 = this.faceNormal(h.face);
+		var n2 = this.faceNormal(h.twin.face);
 
-		return 0.0; // placeholder
+		var y = e_n.dot(n1.cross(n2));
+		var x = n1.dot(n2);
+
+		return Math.atan2(y,x);
+		//return 0.0; // placeholder
 	}
 
 	/**
@@ -276,8 +292,17 @@ class Geometry {
 	 */
 	vertexNormalAreaWeighted(v) {
 		// TODO
+		let n = new Vector();
+		for (let f of v.adjacentFaces())
+		{
+			let normal = this.faceNormal(f);
+			let area = this.area(f);
+			n.incrementBy(normal.times(area));	
+		}
+		n.normalize();
 
-		return new Vector(); // placeholder
+		return n;
+		//return new Vector(); // placeholder
 	}
 
 	/**
@@ -288,8 +313,20 @@ class Geometry {
 	 */
 	vertexNormalAngleWeighted(v) {
 		// TODO
+		let n = new Vector();
+		for (let f of v.adjacentFaces())
+		{
+			let normal = this.faceNormal(f);
+			for (let c of f.adjacentCorners())
+			{
+				if (c.vertex == v) n.incrementBy(normal.times(this.angle(c)));
+			}
+			
+		}
+		n.normalize();
 
-		return new Vector(); // placeholder
+		return n;
+		//return new Vector(); // placeholder
 	}
 
 	/**
@@ -324,8 +361,32 @@ class Geometry {
 	 */
 	vertexNormalSphereInscribed(v) {
 		// TODO
+		let n = new Vector();
+		for (let f of v.adjacentFaces())
+		{
+			for (let h of f.adjacentHalfedges())
+			{
+				
+				if (h.vertex == v)
+				{
+					var a = this.vector(h);
+					var b = this.vector(h.prev).negated()
 
-		return new Vector(); // placeholder
+					var sphere = b.cross(a);
+
+					sphere.divideBy(a.norm2());
+					sphere.divideBy(b.norm2());
+
+					console.log(sphere.norm());
+
+					n.incrementBy(sphere);
+				}
+			}
+		}
+
+		n.normalize();
+		return n;
+		//return new Vector(); // placeholder
 	}
 
 	/**
@@ -337,8 +398,19 @@ class Geometry {
 	 */
 	angleDefect(v) {
 		// TODO
+		if (v.onBoundary()) var total = Math.PI;
+		else var total = 2*Math.PI;
 
-		return 0.0; // placeholder
+		let inc = 0;
+		for (let c of v.adjacentCorners())
+		{
+			if (c.vertex == v)
+			{
+				inc += this.angle(c);
+			}
+		}
+		return total - inc;
+		//return 0.0; // placeholder
 	}
 
 	/**
