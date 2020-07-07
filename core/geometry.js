@@ -362,8 +362,7 @@ class Geometry {
 		{
 			var nc = this.vector(e.halfedge);
 			if (e.halfedge.vertex != v) nc = nc.negated();
-			console.log(this.cotan(e.halfedge));
-			nc.scaleBy(this.cotan(e.halfedge) * this.cotan(e.halfedge.twin))
+			nc.scaleBy(this.cotan(e.halfedge) + this.cotan(e.halfedge.twin))
 			n.incrementBy(nc);
 		}
 		//return new Vector(); // placeholder
