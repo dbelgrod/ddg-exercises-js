@@ -259,8 +259,22 @@ class Geometry {
 	 */
 	circumcentricDualArea(v) {
 		// TODO
+		var area = 0.0;
+		for (let h of v.adjacentHalfedges())
+		{
+			if (h.vertex == v)
+			{
+				var e1 = this.vector(h);
+				var e2 = this.vector(h.prev).negated();
 
-		return 0.0; // placeholder
+				var alpha_cot = this.cotan(h);
+				var beta_cot = this.cotan(h.prev);
+
+				area += e1.norm2()*alpha_cot + e2.norm2()*beta_cot;
+			}
+		}
+		return area / 8;
+		//return 0.0; // placeholder
 	}
 
 	/**
