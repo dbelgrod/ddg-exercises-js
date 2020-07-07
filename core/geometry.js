@@ -381,26 +381,22 @@ class Geometry {
 	vertexNormalSphereInscribed(v) {
 		// TODO
 		let n = new Vector();
-		for (let f of v.adjacentFaces())
+		for (let h of v.adjacentHalfedges())
 		{
-			for (let h of f.adjacentHalfedges())
+			if (h.vertex == v)
 			{
-				
-				if (h.vertex == v)
-				{
-					var a = this.vector(h);
-					var b = this.vector(h.prev).negated()
+				var a = this.vector(h);
+				var b = this.vector(h.prev).negated()
 
-					var sphere = b.cross(a);
+				var sphere = a.cross(b);
+				//console.log(sphere);
 
-					sphere.divideBy(a.norm2());
-					sphere.divideBy(b.norm2());
-
-					console.log(sphere.norm());
-
-					n.incrementBy(sphere);
-				}
+				sphere.divideBy(a.norm2());
+				sphere.divideBy(b.norm2());
+			
+				n.incrementBy(sphere);
 			}
+
 		}
 
 		n.normalize();
