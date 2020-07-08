@@ -476,8 +476,8 @@ class Geometry {
 	 */
 	totalAngleDefect() {
 		// TODO
-
-		return 0.0; // placeholder
+		return 2*Math.PI*this.mesh.eulerCharacteristic();
+		//return 0.0; // placeholder
 	}
 
 	/**
