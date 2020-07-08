@@ -491,7 +491,7 @@ class Geometry {
 		var H =  this.scalarMeanCurvature(v);
 		var root = Math.sqrt(Math.pow(this.scalarMeanCurvature, 2) - this.scalarGaussCurvature);
 
-		return [H+root, H-root];
+		return [H-root, H+root];
 		//return [0.0, 0.0]; // placeholder
 	}
 
