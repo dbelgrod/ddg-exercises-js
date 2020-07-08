@@ -488,8 +488,11 @@ class Geometry {
 	 */
 	principalCurvatures(v) {
 		// TODO
+		var H =  this.scalarMeanCurvature(v);
+		var root = Math.sqrt(Math.pow(this.scalarMeanCurvature, 2) - this.scalarGaussCurvature);
 
-		return [0.0, 0.0]; // placeholder
+		return [H+root, H-root];
+		//return [0.0, 0.0]; // placeholder
 	}
 
 	/**
