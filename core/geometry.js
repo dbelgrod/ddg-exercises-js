@@ -533,7 +533,7 @@ class Geometry {
 				L.addEntry(u, i.index, j.index);
 				lval += u;
 			}
-			L.addEntry(-lval, i.index, i.index);
+			L.addEntry(-lval+1e-8, i.index, i.index);
 		}
 		return SparseMatrix.fromTriplet(L);
 		//return SparseMatrix.identity(1, 1); // placeholder
