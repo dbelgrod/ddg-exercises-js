@@ -505,8 +505,38 @@ class Geometry {
 	 */
 	laplaceMatrix(vertexIndex) {
 		// TODO
-
-		return SparseMatrix.identity(1, 1); // placeholder
+		/**
+		 * for h each adjacentHalfedges
+		 * uj-ui = this.vector(h) --> if h.vertex == v --> j is h.next.vertex and +
+		 * 					          else --> j is h.vertex and multiply by -1
+		 * cot(h) --> get cot(v.h) and (v.h.prev)
+		 */
+		var size = Object.keys(vertexIndex).length;
+		var L = new Triplet(size,size);
+		
+		for (let key in vertexIndex){
+			var pos = vertexIndex[key];
+			var i = this.mesh.vertices[pos];
+			var lval = 0;
+			for (let h of i.adjacentHalfedges())
+			{
+				if (h.vertex.index == i.index) 
+				{
+					var j = h.next.vertex;
+					var u = -0.5*(this.cotan(h) + this.cotan(h.twin));
+				}
+				else
+				{
+					var j = h.vertex;
+					var u = 0.5*(this.cotan(h) + this.cotan(h.twin));
+				}
+				L.addEntry(u, i.index, j.index);
+				lval += u;
+			}
+			L.addEntry(-lval, i.index, i.index);
+		}
+		return SparseMatrix.fromTriplet(L);
+		//return SparseMatrix.identity(1, 1); // placeholder
 	}
 
 	/**
