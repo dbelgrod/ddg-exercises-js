@@ -548,8 +548,17 @@ class Geometry {
 	 */
 	massMatrix(vertexIndex) {
 		// TODO
-
-		return SparseMatrix.identity(1, 1); // placeholder
+		var size = Object.keys(vertexIndex).length;
+		var L = new Triplet(size,size);
+		
+		for (let key in vertexIndex)
+		{
+			var pos = vertexIndex[key];
+			var v = this.mesh.vertices[pos];
+			L.addEntry(this.barycentricDualArea(v), v.index, v.index);
+		}
+		//return SparseMatrix.identity(1, 1); // placeholder
+		return SparseMatrix.fromTriplet(L);
 	}
 
 	/**
