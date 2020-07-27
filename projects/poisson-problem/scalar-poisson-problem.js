@@ -35,18 +35,13 @@ class ScalarPoissonProblem {
 	 */
 	solve(rho) {
 		// TODO
-		// sum(M) == totalArea
 		
-		console.log("rho:", rho.sum()); 
-		var rho_bar = this.M.timesReal(1/this.totalArea).timesDense(DenseMatrix.ones(rho.nRows(), 1)).timesReal(rho.sum());
-		console.log("rho_bar:", rho_bar.sum());
+		var rho_bar = DenseMatrix.ones(rho.nRows(),1).timesReal(this.M.timesDense(rho).sum() / this.totalArea);
 		
-		var b = rho.minus(rho_bar);
-		console.log("b:", b.sum());
+		var b = this.M.timesDense(rho.minus(rho_bar)).timesReal(-1);
 
 		var llt = this.A.chol();
 		var x = llt.solvePositiveDefinite(b);
-		console.log("x:", x.sum());
 		return x;
 		//return DenseMatrix.zeros(rho.nRows(), 1); // placeholder
 	}
