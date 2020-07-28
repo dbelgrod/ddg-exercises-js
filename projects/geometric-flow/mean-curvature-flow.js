@@ -23,8 +23,12 @@ class MeanCurvatureFlow {
 	 */
 	buildFlowOperator(M, h) {
 		// TODO
-
-		return SparseMatrix.identity(1, 1); // placeholder
+		var L = this.geometry.laplaceMatrix(this.vertexIndex);
+		//var I = SparseMatrix.identity(M.nRows(), M.nRows());
+		
+		//return I.plus(M.invertDiagonal().timesSparse(L).timesReal(h));
+		return M.plus(L.timesReal(h));
+		//return SparseMatrix.identity(1, 1); // placeholder
 	}
 
 	/**
@@ -35,7 +39,31 @@ class MeanCurvatureFlow {
 	integrate(h) {
 		// TODO
 		let vertices = this.geometry.mesh.vertices;
+		var M = this.geometry.massMatrix(this.vertexIndex);
+		var A = this.buildFlowOperator(M, h);
 
+		// need to moves vertices into a #V by 3 matrix
+		var pos = new Triplet(M.nRows(), 3);
+		
+		for (let v of vertices) 
+		{
+			let p = this.geometry.positions[v];
+			pos.addEntry(p.x, v.index, 0);
+			pos.addEntry(p.y, v.index, 1);
+			pos.addEntry(p.z, v.index, 2);
+		}
+		var b = M.timesDense(SparseMatrix.fromTriplet(pos).toDense());
+		
+		var llt = A.chol();
+		var res = llt.solvePositiveDefinite(b);
+		for (let v of vertices)  
+		{
+			let p = this.geometry.positions[v];
+			p.x = res.get(v.index,0);
+			p.y = res.get(v.index,1);
+			p.z = res.get(v.index,2);
+		}
+		console.log(b.sum() - res.sum());
 		// center mesh positions around origin
 		normalize(this.geometry.positions, vertices, false);
 	}
