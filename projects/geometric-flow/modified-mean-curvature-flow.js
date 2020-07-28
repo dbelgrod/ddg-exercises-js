@@ -9,10 +9,11 @@ class ModifiedMeanCurvatureFlow extends MeanCurvatureFlow {
 	 * @property {module:LinearAlgebra.SparseMatrix} A The laplace matrix of the input mesh.
 	 */
 	constructor(geometry) {
-		super(geometry);
-
+		super(geometry); //derives from MCF
+		let vertexIndex = {...this.vertexIndex}; //ends up being useless but copies dicts
+		this.A = this.geometry.laplaceMatrix(vertexIndex); //defined before in buildFlowOperator
 		// TODO: build the laplace matrix
-		this.A = SparseMatrix.identity(1, 1); // placeholder
+		//this.A = SparseMatrix.identity(1, 1); // placeholder
 	}
 
 	/**
@@ -20,7 +21,7 @@ class ModifiedMeanCurvatureFlow extends MeanCurvatureFlow {
 	 */
 	buildFlowOperator(M, h) {
 		// TODO
-
-		return SparseMatrix.identity(1, 1); // placeholder
+		return M.plus(this.A.timesReal(h));
+		//return SparseMatrix.identity(1, 1); // placeholder
 	}
 }
